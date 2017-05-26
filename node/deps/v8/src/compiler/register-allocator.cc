@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "src/compiler/register-allocator.h"
+
+#include "src/assembler-inl.h"
 #include "src/base/adapters.h"
 #include "src/compiler/linkage.h"
-#include "src/compiler/register-allocator.h"
 #include "src/string-stream.h"
 
 namespace v8 {
@@ -94,7 +96,6 @@ int GetByteWidth(MachineRepresentation rep) {
       break;
   }
   UNREACHABLE();
-  return 0;
 }
 
 }  // namespace
@@ -318,7 +319,6 @@ bool UsePosition::HintRegister(int* register_code) const {
     }
   }
   UNREACHABLE();
-  return false;
 }
 
 
@@ -342,7 +342,6 @@ UsePositionHintType UsePosition::HintTypeForOperand(
       break;
   }
   UNREACHABLE();
-  return UsePositionHintType::kNone;
 }
 
 void UsePosition::SetHint(UsePosition* use_pos) {
@@ -1778,7 +1777,8 @@ void ConstraintBuilder::MeetConstraintsBefore(int instr_index) {
     int output_vreg = second_output->virtual_register();
     int input_vreg = cur_input->virtual_register();
     UnallocatedOperand input_copy(UnallocatedOperand::ANY, input_vreg);
-    cur_input->set_virtual_register(second_output->virtual_register());
+    *cur_input =
+        UnallocatedOperand(*cur_input, second_output->virtual_register());
     MoveOperands* gap_move = data()->AddGapMove(instr_index, Instruction::END,
                                                 input_copy, *cur_input);
     if (code()->IsReference(input_vreg) && !code()->IsReference(output_vreg)) {
@@ -3150,6 +3150,9 @@ bool LinearScanAllocator::TryAllocateFreeReg(
     // the range end. Split current at position where it becomes blocked.
     LiveRange* tail = SplitRangeAt(current, pos);
     AddToUnhandledSorted(tail);
+
+    // Try to allocate preferred register once more.
+    if (TryAllocatePreferredReg(current, free_until_pos)) return true;
   }
 
   // Register reg is available at the range start and is free until the range
