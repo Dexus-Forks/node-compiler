@@ -182,6 +182,7 @@ class Isolate;
   API(HandleApiCall)                                                           \
   API(HandleApiCallAsFunction)                                                 \
   API(HandleApiCallAsConstructor)                                              \
+  ASM(HandleFastApiCall)                                                       \
                                                                                \
   /* Adapters for Turbofan into runtime */                                     \
   ASM(AllocateInNewSpace)                                                      \

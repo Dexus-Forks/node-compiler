@@ -17,8 +17,8 @@
 namespace v8 {
 namespace platform {
 
-v8::Platform* CreateDefaultPlatform(int thread_pool_size,
-                                    IdleTaskSupport idle_task_support) {
+
+v8::Platform* CreateDefaultPlatform(int thread_pool_size) {
   DefaultPlatform* platform = new DefaultPlatform();
   platform->SetThreadPoolSize(thread_pool_size);
   platform->EnsureInitialized();

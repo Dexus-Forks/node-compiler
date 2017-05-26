@@ -1432,6 +1432,10 @@ void Heap::CallGCPrologueCallbacks(GCType gc_type, GCCallbackFlags flags) {
       }
     }
   }
+  if (FLAG_trace_object_groups && (gc_type == kGCTypeIncrementalMarking ||
+                                   gc_type == kGCTypeMarkSweepCompact)) {
+    isolate_->global_handles()->PrintObjectGroups();
+  }
 }
 
 
